@@ -3,7 +3,7 @@ import requests
 import zmq
 import json
 import socket
-"""Publisher for Tesla's Current Stock Price"""
+"""Publisher for Tesla's stock summary"""
 
 url = "https://yh-finance.p.rapidapi.com/stock/v2/get-summary"
 querystring = {"symbol":"TSLA","region":"US"}
