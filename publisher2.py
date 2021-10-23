@@ -5,14 +5,17 @@ import json
 import socket
 """Publisher for Tesla's Current Stock Price"""
 
-url = "https://twelve-data1.p.rapidapi.com/price"
-
-querystring = {"symbol":"TSLA","format":"json","outputsize":"30"}
+url = "https://yh-finance.p.rapidapi.com/stock/v2/get-summary"
+querystring = {"symbol":"TSLA","region":"US"}
 
 headers = {
-    'x-rapidapi-host': "twelve-data1.p.rapidapi.com",
+    'x-rapidapi-host': "yh-finance.p.rapidapi.com",
     'x-rapidapi-key': "6c88faa169mshf884cd03d448ab2p151f28jsne5865b21021b"
     }
+
+response = requests.request("GET", url, headers=headers, params=querystring)
+
+print(response.text)
 
 context = zmq.Context()
 socket = context.socket(zmq.PUSH)
@@ -26,6 +29,7 @@ def Advertise():
 def Publish():
     response = requests.request("GET", url, headers=headers, params=querystring)
     message = response.json()
+    print(type(message))
     message["Topic"] = 'TESLA current Stock Price'
     message["Sender"] = 'Publisher2'
     print('Publisher2 sending Payload:' + json.dumps(message))
