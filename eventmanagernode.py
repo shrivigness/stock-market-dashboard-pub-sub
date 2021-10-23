@@ -19,8 +19,8 @@ while True:
     socks = dict(poller.poll())
     if socket in socks:
          message = socket.recv_json()
-         print(type(message))
-         print("Received below payload from "+"!!!!")
+         print(message)
+         print("Received below payload from "+ message.get('Sender') +"!!!!")
          publish(message)
          
 
