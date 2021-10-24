@@ -26,6 +26,7 @@ def Advertise():
     return
 """
 
+
 def Publish():
     response = requests.request("GET", url, headers=headers, params=querystring)
     message = response.json()
@@ -43,3 +44,11 @@ if __name__ == "__main__":
         Publish()
         time.sleep(15)
     socket.close()
+
+# Inserting the loaded data in the Collection
+# if JSON contains data more than one entry
+# insert_many is used else inser_one is used
+if isinstance(message, list):
+	Collection.insert_many(message)
+else:
+	Collection.insert_one(message)
