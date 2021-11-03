@@ -3,9 +3,9 @@ import requests
 import json
 import zmq
 import socket
-"""Publisher for Amazon's Stock Price"""
+"""Publisher for Apple's Stock Price"""
 
-url = "https://realstonks.p.rapidapi.com/AMZN"
+url = "https://realstonks.p.rapidapi.com/AAPL"
 context = zmq.Context()
 socket = context.socket(zmq.PUSH)
 socket.connect("tcp://127.0.0.1:5555")
@@ -19,9 +19,9 @@ def Publish():
     #print(message)
     message = json.loads(message)
     #print(type(message))
-    message["Topic"] = "Amazon's stock price"
-    message["Sender"] = "Publisher2"
-    print('Publisher2 sending Payload' + json.dumps(message))
+    message["Topic"] = "Apple's stock price"
+    message["Sender"] = "Publisher3"
+    print('Publisher3 sending Payload:' + json.dumps(message))
     socket.send_json(message)
     return
 
