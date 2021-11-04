@@ -2,10 +2,23 @@
 
 import socket               # Import socket module
 
-s = socket.socket()         # Create a socket object
-host = '127.0.0.1'       # Get local machine name
-port = 4500                # Reserve a port for your service.
-s.connect((host, port))
-s.send(b'Hello!')
-print(s.recv(1024))
-s.close                     # Close the socket when done
+# Create a UDP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+server_address = ('localhost', 10000)
+message = b'This is our message. It will be sent all at once'
+
+try:
+
+    # Send data
+    print('sending {!r}'.format(message))
+    sent = sock.sendto(message, server_address)
+
+    # Receive response
+    print('waiting to receive')
+    data, server = sock.recvfrom(4096)
+    print('received {!r}'.format(data))
+
+finally:
+    print('closing socket')
+    sock.close()
