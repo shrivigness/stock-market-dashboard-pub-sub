@@ -4,7 +4,7 @@ import json
 
 PORT = 6010
 SERVER = socket.gethostbyname(socket.gethostname())
-#SERVER = socket.gethostbyname('client')
+#SERVER = socket.gethostbyname('sub1')
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -31,7 +31,7 @@ def handle_client(conn, addr):
 
 def start():
     server.listen()
-    print(f"[LISTENING] Client1 is listening on {SERVER}")
+    print(f"[LISTENING] Client1 is listening on {SERVER}:{PORT}")
     while True:
         conn,addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn,addr))

@@ -5,19 +5,19 @@ import pymongo
 
 client = pymongo.MongoClient("mongodb://localhost:27017")
 db = client.get_database('pubsub')
-    
-"""Network Details of IP1"""
-PORT = 5050
+
+"""Network Details of IP3"""
+PORT = 5060
 SERVER = socket.gethostbyname(socket.gethostname())
-#SERVER = socket.gethostbyname('IP1')
+#SERVER = socket.gethostbyname('IP3')
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 HEADER = 200
 
-"""Network Details of Client1"""
-CPORT = 6010
+"""Network Details of Client3"""
+CPORT = 6020
 CSERVER = "192.168.56.1"
-#CSERVER = socket.gethostbyname('sub1')
+#CSERVER = socket.gethostbyname('sub3')
 CADDR = (CSERVER, CPORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -25,15 +25,9 @@ HEADER = 200
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 server.bind(ADDR)
 
-"""Publishers Publishing to IP1"""
-publishers = ["Publisher1","Publisher2","Publisher3"]
+"""Publishers Publishing to IP3"""
+publishers = ["Publisher7","Publisher8","Publisher9"]
 
-"""
-def storerawdata(payload):
-    db = client.get_database('pubsub')
-    rawdata = db.get_collection('rawdata')
-    rawdata.insert_one(payload)
-"""
 def senddata(msg,server,port):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     address = (server, port)
@@ -47,35 +41,41 @@ def senddata(msg,server,port):
     print(client.recv(2048).decode(FORMAT))
     pass
 
-"""Notify newly published Data"""
+"""
+def storerawdata(payload):
+    db = client.get_database('pubsub')
+    rawdata = db.get_collection('rawdata')
+    rawdata.insert_one(payload)
+"""
 
+"""Notify newly published Data"""
 
 def notify(msg):
     topiclist = db["topics"]
     ip = db["IPs"]
     for subs in topiclist.find({"topic":msg["Topic"]}):
-        if(subs["subscriber"]=="Subscriber1"):
+        if(subs["subscriber"]=="Subscriber3"):
             senddata(json.dumps(msg),CSERVER,CPORT)
         else:
             iprecord = ip.find_one({"IP":subs["IP"]})
             senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
     return 
 
-"""Subscriber-1 Subscribes to a Topic"""
+"""Subscriber-3 Subscribes to a Topic"""
 
 def subscribe(msg):
     topiclist = db["topics"]
-    if(not(topiclist.find_one({"topic":msg["Topic"],"IP":"IP1", "subscriber":"Subscriber1"}))):
-        iprecord = {"topic":msg["Topic"],"IP":"IP1", "subscriber":"Subscriber1"}
+    if(not(topiclist.find_one({"topic":msg["Topic"],"IP":"IP3", "subscriber":"Subscriber3"}))):
+        iprecord = {"topic":msg["Topic"],"IP":"IP3", "subscriber":"Subscriber3"}
         topiclist.insert_one(iprecord)
     return
 
-"""Subscriber-1 Unsubscribes to a Topic"""
+"""Subscriber-3 Unsubscribes to a Topic"""
 
 def unsubscribe(msg):
     topiclist = db["topics"]
-    if(topiclist.find_one({"topic":msg["Topic"],"IP":"IP1", "subscriber":"Subscriber1"})):
-        topiclist.delete_one({"topic":msg["Topic"],"IP":"IP1", "subscriber":"Subscriber1"})
+    if(topiclist.find_one({"topic":msg["Topic"],"IP":"IP3", "subscriber":"Subscriber3"})):
+        topiclist.delete_one({"topic":msg["Topic"],"IP":"IP3", "subscriber":"Subscriber3"})
     return
 
 """Advertise a new Topic"""
@@ -88,13 +88,13 @@ def advertise(msg):
     else:
         ip = db["IPs"]
         for iprecord in ip.find():
-            if(iprecord["IP"]!="IP1"):
+            if(iprecord["IP"]!="IP3"):
                 senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
     return
 
 """Handle incoming messages"""
 
-def handle_client(conn, addr):  
+def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     connected = True
     while connected:
@@ -114,26 +114,29 @@ def handle_client(conn, addr):
             else:
                 notify(msg)
             sender = msg.get("Sender")
-            conn.send("Msg received by IP1".encode(FORMAT))
+            conn.send("Msg received by IP3".encode(FORMAT))
     conn.close()
 
 """Table with IP details"""
 def addtotable():
+    db = client.get_database('pubsub')
     ip = db["IPs"]
-    if(not(ip.find_one({"IP": "IP1"}))):
-        iprecord = {"IP":"IP1", "SERVER":SERVER,"PORT":PORT}
+    if(not(ip.find_one({"IP": "IP3"}))):
+        iprecord = {"IP":"IP3", "SERVER":SERVER,"PORT":PORT}
         ip.insert_one(iprecord)
     return
-    
+
+"""Handle incoming messages"""
+
 def start():
     server.listen()
     addtotable()
-    print(f"[LISTENING] IP1 is listening on {SERVER}:{PORT}")
+    print(f"[LISTENING] IP3 is listening on {SERVER}:{PORT}")
     while True:
         conn,addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn,addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
 
-print("[STARTING] IP1 is starting...")
+print("[STARTING] IP3 is starting...")
 start()

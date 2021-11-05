@@ -4,16 +4,16 @@ import json
 import socket 
 
 HEADER = 200
-PORT = 5050
+PORT = 5060
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 SERVER = "192.168.56.1"
-#SERVER = socket.gethostbyname('IP1')
+#SERVER = socket.gethostbyname('IP3')
 ADDR = (SERVER, PORT)
 
 
-"""Publisher for Amazon's Stock Price"""
-url = "https://realstonks.p.rapidapi.com/AMZN"
+"""Publisher for Alphabet Inc's Stock Price"""
+url = "https://realstonks.p.rapidapi.com/GOOGL"
 
 headers = {
     'x-rapidapi-host': "realstonks.p.rapidapi.com",
@@ -23,7 +23,7 @@ headers = {
 def advertise():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
-    msg = '{"Sender":"Publisher2", "Topic":"Amazon stock price", "Advertise":true}'
+    msg = '{"Sender":"Publisher8", "Topic":"Alphabet Inc stock price", "Advertise":true}'
     message = msg.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
@@ -50,9 +50,9 @@ def Publish():
     #print(message)
     message = json.loads(message)
     #print(type(message))
-    message["Topic"] = "Amazon stock price"
-    message["Sender"] = "Publisher2"
-    print('Publisher2 sending Payload:' + json.dumps(message))
+    message["Topic"] = "Alphabet Inc stock price"
+    message["Sender"] = "Publisher8"
+    print('Publisher8 sending Payload:' + json.dumps(message))
     send(json.dumps(message))
     #db = client.get_database('total_records')
     #records = db.register

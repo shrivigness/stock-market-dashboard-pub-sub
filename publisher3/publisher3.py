@@ -20,10 +20,10 @@ headers = {
     'x-rapidapi-key': "6c88faa169mshf884cd03d448ab2p151f28jsne5865b21021b"
     }
 
-def notify():
+def advertise():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
-    msg = '{"Sender":"Publisher3", "Topic":"Apple stock price", "Notify":true}'
+    msg = '{"Sender":"Publisher3", "Topic":"Apple stock price", "Advertise":true}'
     message = msg.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
@@ -60,7 +60,7 @@ def Publish():
     
 if __name__ == "__main__":
     time.sleep(3)
-    notify()
+    advertise()
     while(1):
         Publish()
         time.sleep(15)

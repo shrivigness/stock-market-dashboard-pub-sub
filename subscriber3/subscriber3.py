@@ -1,25 +1,42 @@
-import pika, sys, os
+import socket
+import threading
+import json
 
-def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel = connection.channel()
+PORT = 6020
+SERVER = socket.gethostbyname(socket.gethostname())
+#SERVER = socket.gethostbyname('client')
+ADDR = (SERVER, PORT)
+FORMAT = 'utf-8'
+HEADER = 200
+DISCONNECT_MESSAGE = "!DISCONNECT"
+server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+server.bind(ADDR)
 
-    channel.queue_declare(queue='subscriber1')
+def handle_client(conn, addr):
+    print(f"[NEW CONNECTION] {addr} connected.")
+    connected = True
+    while connected:
+        msg_length = conn.recv(HEADER).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = conn.recv(HEADER).decode(FORMAT)
+            connected = False
+            print(f"[{addr}]{msg}")
+            #msg = json.loads(msg)
+            #sender = msg.get("Sender")
+            conn.send("Msg received by Subscriber3".encode(FORMAT))
 
-    def callback(ch, method, properties, body):
-        print(" [x] Received %r" % body)
+    conn.close()
 
-    channel.basic_consume(queue='subscriber1', on_message_callback=callback, auto_ack=True)
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
+def start():
+    server.listen()
+    print(f"[LISTENING] Client3 is listening on {SERVER}:{PORT}")
+    while True:
+        conn,addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(conn,addr))
+        thread.start()
+        print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
 
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+print("[STARTING] Client3 is starting...")
+start()
