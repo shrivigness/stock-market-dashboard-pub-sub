@@ -3,21 +3,22 @@ import threading
 import json
 import pymongo
 
-client = pymongo.MongoClient("mongodb://localhost:27017")
-db = client.get_database('pubsub')
+#client = pymongo.MongoClient("mongodb://localhost:27017")
+client = pymongo.MongoClient("mongodb://mongodb:27017")
+db = client["pubsub"]
 
 """Network Details of IP2"""
 PORT = 5055
-SERVER = socket.gethostbyname(socket.gethostname())
-#SERVER = socket.gethostbyname('IP2')
+#SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = socket.gethostbyname('IP2')
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 HEADER = 200
 
 """Network Details of Client2"""
 CPORT = 6015
-CSERVER = "192.168.56.1"
-#CSERVER = socket.gethostbyname('sub2')
+#CSERVER = "192.168.56.1"
+CSERVER = socket.gethostbyname('sub2')
 CADDR = (CSERVER, CPORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -53,13 +54,13 @@ def storerawdata(payload):
 
 def notify(msg):
     topiclist = db["topics"]
-    ip = db["IPs"]
+    sublist = db["subscribers"]
     for subs in topiclist.find({"topic":msg["Topic"]}):
         if(subs["subscriber"]=="Subscriber2"):
             senddata(json.dumps(msg),CSERVER,CPORT)
         else:
-            iprecord = ip.find_one({"IP":subs["IP"]})
-            senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
+            subrecord = sublist.find_one({"subscriber":subs["subscriber"]})
+            senddata(json.dumps(msg),subrecord["SERVER"],subrecord["PORT"])
     return 
 
 """Subscriber-2 Subscribes to a Topic"""
@@ -84,8 +85,9 @@ def unsubscribe(msg):
 def advertise(msg):
     advertisemsg = msg["Topic"]+" is available for Subscription" 
     publisher = msg["Sender"]
+    msg["Adverstisemsg"] = advertisemsg
     if(publisher not in publishers):
-        senddata(advertisemsg,CSERVER,CPORT)
+        senddata(json.dumps(msg),CSERVER,CPORT)
     else:
         ip = db["IPs"]
         for iprecord in ip.find():
@@ -127,6 +129,7 @@ def addtotable():
         ip.insert_one(iprecord)
     return
 
+"""Handle incoming messages"""
 
 def start():
     server.listen()

@@ -1,0 +1,57 @@
+
+services:
+  mongodb:
+    image : mongo
+    container_name: mongodb
+    networks:
+      - pubsub
+    volumes:
+      - ./DB:/data/db
+    restart: unless-stopped
+  sub3:
+    build: ./subscriber3
+    networks:
+      - pubsub
+    container_name: "sub3"
+    depends_on:
+      - mongodb
+
+  sub2:
+    build: ./subscriber2
+    networks:
+      - pubsub
+    container_name: "sub2"
+    depends_on:
+      - mongodb
+  sub1:
+    build: ./subscriber1
+    networks:
+      - pubsub
+    container_name: "sub1"
+    depends_on:
+      - mongodb
+  IP1:
+    build: ./IP1
+    networks:
+      - pubsub
+    container_name: "IP1"
+    depends_on:
+      - mongodb
+      - subscriber1
+      - subscriber2
+      - subscriber3
+  IP2:
+    build: ./IP2
+    networks:
+      - pubsub
+    container_name: "IP2"
+    depends_on:
+      - mongodb
+      - subscriber1
+      - subscriber2
+      - subscriber3
+    
+networks: 
+  pubsub:
+    external: false
+    name: pubsub  

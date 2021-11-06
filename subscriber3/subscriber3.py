@@ -1,10 +1,15 @@
 import socket
 import threading
 import json
+import pymongo
+
+#client = pymongo.MongoClient("mongodb://localhost:27017")
+client = pymongo.MongoClient("mongodb://mongodb:27017")
+db = client["pubsub"]
 
 PORT = 6020
-SERVER = socket.gethostbyname(socket.gethostname())
-#SERVER = socket.gethostbyname('client')
+#SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = socket.gethostbyname('sub3')
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -28,9 +33,17 @@ def handle_client(conn, addr):
 
     conn.close()
 
+"""Table with IP details"""
+def addtotable():
+    ip = db["subscribers"]
+    if(not(ip.find_one({"subscriber": "Subscriber3"}))):
+        iprecord = {"subscriber":"Subscriber3", "SERVER":SERVER,"PORT":PORT}
+        ip.insert_one(iprecord)
+    return
 
 def start():
     server.listen()
+    addtotable()
     print(f"[LISTENING] Client3 is listening on {SERVER}:{PORT}")
     while True:
         conn,addr = server.accept()

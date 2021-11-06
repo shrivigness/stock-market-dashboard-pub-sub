@@ -7,8 +7,8 @@ HEADER = 200
 PORT = 5055
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
-SERVER = "192.168.56.1"
-#SERVER = socket.gethostbyname('IP2')
+#SERVER = "192.168.56.1"
+SERVER = socket.gethostbyname('IP2')
 ADDR = (SERVER, PORT)
 
 

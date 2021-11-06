@@ -3,8 +3,9 @@ import threading
 import json
 import pymongo
 
-client = pymongo.MongoClient("mongodb://localhost:27017")
-db = client.get_database('pubsub')
+#client = pymongo.MongoClient("mongodb://localhost:27017")
+client = pymongo.MongoClient("mongodb://mongodb:27017")
+db = client["pubsub"]
 
 """Network Details of IP3"""
 PORT = 5060
@@ -16,8 +17,8 @@ HEADER = 200
 
 """Network Details of Client3"""
 CPORT = 6020
-CSERVER = "192.168.56.1"
-#CSERVER = socket.gethostbyname('sub3')
+#CSERVER = "192.168.56.1"
+CSERVER = socket.gethostbyname('sub3')
 CADDR = (CSERVER, CPORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -52,14 +53,14 @@ def storerawdata(payload):
 
 def notify(msg):
     topiclist = db["topics"]
-    ip = db["IPs"]
+    sublist = db["subscribers"]
     for subs in topiclist.find({"topic":msg["Topic"]}):
         if(subs["subscriber"]=="Subscriber3"):
             senddata(json.dumps(msg),CSERVER,CPORT)
         else:
-            iprecord = ip.find_one({"IP":subs["IP"]})
-            senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
-    return 
+            subrecord = sublist.find_one({"subscriber":subs["subscriber"]})
+            senddata(json.dumps(msg),subrecord["SERVER"],subrecord["PORT"])
+    return
 
 """Subscriber-3 Subscribes to a Topic"""
 
@@ -83,8 +84,9 @@ def unsubscribe(msg):
 def advertise(msg):
     advertisemsg = msg["Topic"]+" is available for Subscription" 
     publisher = msg["Sender"]
+    msg["Adverstisemsg"] = advertisemsg
     if(publisher not in publishers):
-        senddata(advertisemsg,CSERVER,CPORT)
+        senddata(json.dumps(msg),CSERVER,CPORT)
     else:
         ip = db["IPs"]
         for iprecord in ip.find():
