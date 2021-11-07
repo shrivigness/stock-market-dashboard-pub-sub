@@ -30,7 +30,7 @@ services:
     container_name: "sub1"
     depends_on:
       - mongodb
-  IP1:
+  ip1:
     build: ./IP1
     networks:
       - pubsub
@@ -40,7 +40,7 @@ services:
       - subscriber1
       - subscriber2
       - subscriber3
-  IP2:
+  ip2:
     build: ./IP2
     networks:
       - pubsub
@@ -50,7 +50,96 @@ services:
       - subscriber1
       - subscriber2
       - subscriber3
-    
+  ip3:
+    build: ./IP3
+    networks:
+      - pubsub
+    container_name: "IP3"
+    depends_on:
+      - mongodb
+      - subscriber1
+      - subscriber2
+      - subscriber3
+  pub1:
+    build: ./publisher1
+    networks:
+      - pubsub
+    container_name: "pub1"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub2:
+    build: ./publisher1
+    networks:
+      - pubsub
+    container_name: "pub2"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub3:
+    build: ./publisher3
+    networks:
+      - pubsub
+    container_name: "pub3"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub4:
+    build: ./publisher4
+    networks:
+      - pubsub
+    container_name: "pub4"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub5:
+    build: ./publisher5
+    networks:
+      - pubsub
+    container_name: "pub5"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub6:
+    build: ./publisher6
+    networks:
+      - pubsub
+    container_name: "pub6"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub7:
+    build: ./publisher7
+    networks:
+      - pubsub
+    container_name: "pub7"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
+  pub8:
+    build: ./publisher8
+    networks:
+      - pubsub
+    container_name: "pub8"
+    depends_on:
+      - mongodb
+      - IP1
+      - IP2
+      - IP3
 networks: 
   pubsub:
     external: false

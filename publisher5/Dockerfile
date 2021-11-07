@@ -1,6 +1,6 @@
 FROM python:3.9.7
 
-ADD publisher3.py .
+ADD publisher5.py .
 
 COPY requirements.txt .
 
