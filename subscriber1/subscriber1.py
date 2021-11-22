@@ -30,7 +30,14 @@ def handle_client(conn, addr):
             #msg = json.loads(msg)
             #sender = msg.get("Sender")
             conn.send("Msg received by Subscriber1".encode(FORMAT))
-
+            msg = json.loads(msg)
+            if("Advertise" in msg):
+                coll = db["topics_list"]
+                if(not(coll.find_one({"topic":msg["Topic"]}))):
+                    coll.insert_one({"topic":msg["Topic"],"IP":msg["IP"],"sender":msg["Sender"]})
+            else:
+                coll = db["subscriber1_rawdata"]
+                coll.insert_one(msg)
     conn.close()
 
 """Table with IP details"""
@@ -40,6 +47,7 @@ def addtotable():
         iprecord = {"subscriber":"Subscriber1", "SERVER":SERVER,"PORT":PORT}
         ip.insert_one(iprecord)
     return
+    
 
 def start():
     server.listen()
@@ -51,5 +59,5 @@ def start():
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
 
-print("[STARTING] Client1 is starting...")
+print(f"[STARTING] Client1 is starting...")
 start()
