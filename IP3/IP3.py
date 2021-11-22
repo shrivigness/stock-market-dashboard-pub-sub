@@ -9,8 +9,8 @@ db = client["pubsub"]
 
 """Network Details of IP3"""
 PORT = 5060
-SERVER = socket.gethostbyname(socket.gethostname())
-#SERVER = socket.gethostbyname('IP3')
+#SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = socket.gethostbyname('IP3')
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 HEADER = 200
@@ -82,16 +82,18 @@ def unsubscribe(msg):
 """Advertise a new Topic"""
 
 def advertise(msg):
-    advertisemsg = msg["Topic"]+" is available for Subscription" 
     publisher = msg["Sender"]
-    msg["Adverstisemsg"] = advertisemsg
-    if(publisher not in publishers):
+    if(publisher in publishers):
+        advertisemsg = msg["Topic"]+" is available for Subscription"
+        msg["Adverstisemsg"] = advertisemsg
+        msg["IP"] = "IP3"
         senddata(json.dumps(msg),CSERVER,CPORT)
-    else:
         ip = db["IPs"]
         for iprecord in ip.find():
             if(iprecord["IP"]!="IP3"):
                 senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
+    else:
+        senddata(json.dumps(msg),CSERVER,CPORT)
     return
 
 """Handle incoming messages"""

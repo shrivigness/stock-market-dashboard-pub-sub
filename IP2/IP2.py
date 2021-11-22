@@ -83,21 +83,24 @@ def unsubscribe(msg):
 """Advertise a new Topic"""
 
 def advertise(msg):
-    advertisemsg = msg["Topic"]+" is available for Subscription" 
     publisher = msg["Sender"]
-    msg["Adverstisemsg"] = advertisemsg
-    if(publisher not in publishers):
+    if(publisher in publishers):
+        advertisemsg = msg["Topic"]+" is available for Subscription"
+        msg["Adverstisemsg"] = advertisemsg
+        msg["IP"] = "IP2"
         senddata(json.dumps(msg),CSERVER,CPORT)
-    else:
         ip = db["IPs"]
         for iprecord in ip.find():
             if(iprecord["IP"]!="IP2"):
                 senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
+    else:
+        senddata(json.dumps(msg),CSERVER,CPORT)
     return
 
 """Handle incoming messages"""
 
 def handle_client(conn, addr):
+    db = client.get_database('pubsub')
     print(f"[NEW CONNECTION] {addr} connected.")
     connected = True
     while connected:
@@ -141,5 +144,5 @@ def start():
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount()-1}")
 
-print("[STARTING] IP2 is starting...")
+print(f"[STARTING] IP2 is starting...")
 start()

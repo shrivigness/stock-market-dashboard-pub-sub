@@ -60,6 +60,8 @@ def notify(msg):
         else:
             subrecord = sublist.find_one({"subscriber":subs["subscriber"]})
             senddata(json.dumps(msg),subrecord["SERVER"],subrecord["PORT"])
+    
+    #senddata(json.dumps(msg),CSERVER,CPORT)
     return 
 
 """Subscriber-1 Subscribes to a Topic"""
@@ -82,16 +84,18 @@ def unsubscribe(msg):
 """Advertise a new Topic"""
 
 def advertise(msg):
-    advertisemsg = msg["Topic"]+" is available for Subscription" 
     publisher = msg["Sender"]
-    msg["Adverstisemsg"] = advertisemsg
-    if(publisher not in publishers):
+    if(publisher in publishers):
+        advertisemsg = msg["Topic"]+" is available for Subscription"
+        msg["Adverstisemsg"] = advertisemsg
+        msg["IP"] = "IP1"
         senddata(json.dumps(msg),CSERVER,CPORT)
-    else:
         ip = db["IPs"]
         for iprecord in ip.find():
             if(iprecord["IP"]!="IP1"):
                 senddata(json.dumps(msg),iprecord["SERVER"],iprecord["PORT"])
+    else:
+        senddata(json.dumps(msg),CSERVER,CPORT)
     return
 
 """Handle incoming messages"""
