@@ -1,146 +1,164 @@
-
 services:
   mongodb:
     image : mongo
     container_name: mongodb
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.2
     volumes:
       - ./DB:/data/db
     restart: unless-stopped
-  sub3:
-    build: ./subscriber3
-    networks:
-      - pubsub
-    container_name: "sub3"
-    depends_on:
-      - mongodb
-
-  sub2:
-    build: ./subscriber2
-    networks:
-      - pubsub
-    container_name: "sub2"
-    depends_on:
-      - mongodb
   sub1:
     build: ./subscriber1
-    networks:
-      - pubsub
     container_name: "sub1"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.3
     depends_on:
       - mongodb
+  sub2:
+    build: ./subscriber2
+    container_name: "sub2"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.4
+    depends_on:
+      - mongodb
+      - sub1
+  sub3:
+    build: ./subscriber3
+    container_name: "sub3"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.5
+    depends_on:
+      - mongodb
+      - sub1
+      - sub2
   ip1:
     build: ./IP1
-    networks:
-      - pubsub
     container_name: "IP1"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.7
     depends_on:
       - mongodb
-      - subscriber1
-      - subscriber2
-      - subscriber3
+      - sub1
+      - sub2
+      - sub3
   ip2:
     build: ./IP2
-    networks:
-      - pubsub
     container_name: "IP2"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.8
     depends_on:
       - mongodb
-      - subscriber1
-      - subscriber2
-      - subscriber3
+      - sub1
+      - sub2
+      - sub3
   ip3:
     build: ./IP3
-    networks:
-      - pubsub
     container_name: "IP3"
+    networks:
+      pubsub:
+        ipv4_address: 172.26.0.6
     depends_on:
       - mongodb
-      - subscriber1
-      - subscriber2
-      - subscriber3
+      - sub1
+      - sub2
+      - sub3
   pub1:
     build: ./publisher1
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.9
     container_name: "pub1"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub2:
-    build: ./publisher1
+    build: ./publisher2
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.10
     container_name: "pub2"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub3:
     build: ./publisher3
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.11
     container_name: "pub3"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub4:
     build: ./publisher4
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.12
     container_name: "pub4"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub5:
     build: ./publisher5
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.13
     container_name: "pub5"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub6:
     build: ./publisher6
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.14
     container_name: "pub6"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub7:
     build: ./publisher7
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.15
     container_name: "pub7"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
+      - ip1
+      - ip2
+      - ip3
   pub8:
     build: ./publisher8
     networks:
-      - pubsub
+      pubsub:
+        ipv4_address: 172.26.0.16
     container_name: "pub8"
     depends_on:
       - mongodb
-      - IP1
-      - IP2
-      - IP3
-networks: 
-  pubsub:
-    external: false
-    name: pubsub  
+      - ip1
+      - ip2
+      - ip3
+networks:
+  pubsub: 
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.0.0/16  
