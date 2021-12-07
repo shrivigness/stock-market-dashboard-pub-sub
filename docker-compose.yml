@@ -1,164 +1,119 @@
+version: '3.8'
+volumes:
+  sksingle-kmultiple_kafka1-data:
+  sksingle-kmultiple_kafka2-data:
+  sksingle-kmultiple_kafka3-data:
+  sksingle-kmultiple_zoo1-data:
+  sksingle-kmultiple_zoo1-log:
+
 services:
   mongodb:
     image : mongo
     container_name: mongodb
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.2
+    ports:
+        - "27018:27017"
     volumes:
       - ./DB:/data/db
     restart: unless-stopped
-  sub1:
-    build: ./subscriber1
-    container_name: "sub1"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.3
+  zoo1:
+    image: confluentinc/cp-zookeeper:6.2.1
+    hostname: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zoo1:2888:3888
+    volumes:
+      - type: volume
+        source: sksingle-kmultiple_zoo1-data
+        target: /data
+      - type: volume
+        source: sksingle-kmultiple_zoo1-log
+        target: /datalog
     depends_on:
       - mongodb
-  sub2:
-    build: ./subscriber2
-    container_name: "sub2"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.4
+
+
+  kafka1:
+    image: confluentinc/cp-kafka:6.2.1
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+    volumes:
+      - type: volume
+        source: sksingle-kmultiple_kafka1-data
+        target: /var/lib/kafka/data
     depends_on:
-      - mongodb
-      - sub1
-  sub3:
-    build: ./subscriber3
-    container_name: "sub3"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.5
+      - zoo1
+
+  kafka2:
+    image: confluentinc/cp-kafka:6.2.1
+    hostname: kafka2
+    container_name: kafka2
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 2
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+    volumes:
+      - type: volume
+        source: sksingle-kmultiple_kafka2-data
+        target: /var/lib/kafka/data
     depends_on:
-      - mongodb
-      - sub1
-      - sub2
-  ip1:
-    build: ./IP1
-    container_name: "IP1"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.7
+      - kafka1
+
+
+  kafka3:
+    image: confluentinc/cp-kafka:6.2.1
+    hostname: kafka3
+    container_name: kafka3
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 3
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+    volumes:
+      - type: volume
+        source: sksingle-kmultiple_kafka3-data
+        target: /var/lib/kafka/data
     depends_on:
-      - mongodb
-      - sub1
-      - sub2
-      - sub3
-  ip2:
-    build: ./IP2
-    container_name: "IP2"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.8
+      - kafka2
+  producer1:
+    build: ./producer1
+    container_name: "producer1"
     depends_on:
-      - mongodb
-      - sub1
-      - sub2
-      - sub3
-  ip3:
-    build: ./IP3
-    container_name: "IP3"
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.6
+      - kafka3
+  producer2:
+    build: ./producer2
+    container_name: "producer2"
     depends_on:
-      - mongodb
-      - sub1
-      - sub2
-      - sub3
-  pub1:
-    build: ./publisher1
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.9
-    container_name: "pub1"
+      - producer1
+  producer3:
+    build: ./producer3
+    container_name: "producer3"
     depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub2:
-    build: ./publisher2
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.10
-    container_name: "pub2"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub3:
-    build: ./publisher3
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.11
-    container_name: "pub3"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub4:
-    build: ./publisher4
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.12
-    container_name: "pub4"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub5:
-    build: ./publisher5
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.13
-    container_name: "pub5"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub6:
-    build: ./publisher6
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.14
-    container_name: "pub6"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub7:
-    build: ./publisher7
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.15
-    container_name: "pub7"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-  pub8:
-    build: ./publisher8
-    networks:
-      pubsub:
-        ipv4_address: 172.26.0.16
-    container_name: "pub8"
-    depends_on:
-      - mongodb
-      - ip1
-      - ip2
-      - ip3
-networks:
-  pubsub: 
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.26.0.0/16  
+      - producer2
+  consumer:
+    build: ./consumers
+    container_name: "consumer"
+    ports:
+      - "5000:5000"
+
+  
