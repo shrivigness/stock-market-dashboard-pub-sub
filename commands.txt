@@ -1,0 +1,11 @@
+bin/kafka-topics --create --topic tesla-stock-price --replication-factor 3 --partitions 4  --zookeeper zoo1:2181
+
+bin/kafka-topics --create --topic amazon-stock-price --replication-factor 3 --partitions 4  --zookeeper zoo1:2181
+
+bin/kafka-topics --create --topic apple-stock-price --replication-factor 3 --partitions 4  --zookeeper zoo1:2181
+
+bin/kafka-topics --list --zookeeper zoo1:2181
+
+bin/kafka-topics --zookeeper zoo1:2181 --describe --topic tesla-stock-price
+
+docker-compose down --volumes
