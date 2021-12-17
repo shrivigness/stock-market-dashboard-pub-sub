@@ -12,7 +12,7 @@ socket.connect("tcp://127.0.0.1:5555")
 
 headers = {
     'x-rapidapi-host': "realstonks.p.rapidapi.com",
-    'x-rapidapi-key': "6c88faa169mshf884cd03d448ab2p151f28jsne5865b21021b"
+    'x-rapidapi-key': ""
     }
 def Publish():
     response = requests.request("GET", url, headers=headers)
